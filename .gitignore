@@ -24,3 +24,6 @@ Tasks/**/**/tests
 *.swp
 *.swo
 *.zip
+
+# 
+njsscan_results.json
