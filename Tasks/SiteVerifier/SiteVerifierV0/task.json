@@ -1,0 +1,163 @@
+{
+  "id": "#{{id}}#",
+  "name": "#{{name}}#",
+  "friendlyName": "Site Verifier",
+  "description": "Verifies the availability and correctness of specified URLs, supporting various HTTP methods, authentication, and payload verification.",
+  "author": "Salih Sert",
+  "helpMarkDown": "Please refer to the README.md for detailed usage instructions. For more examples and common use cases, see [Example Usage](link-to-examples).",
+  "category": "Utility",
+  "visibility": ["Build", "Release"],
+  "version": {
+    "Major": 0,
+    "Minor": 0,
+    "Patch": 22
+  },
+  "instanceNameFormat": "Verify URL $(siteUrl) with expected code $(expectedStatusCode)",
+  "groups": [
+    {
+      "name": "advancedVariables",
+      "displayName": "Advanced",
+      "isExpanded": false
+    },
+    {
+      "name": "environmentVariables",
+      "displayName": "Environment Variables",
+      "isExpanded": false
+    }
+  ],
+  "inputs": [
+    {
+      "name": "siteUrl",
+      "type": "string",
+      "label": "URL to Verify",
+      "defaultValue": "",
+      "required": true,
+      "helpMarkDown": "Required. The target URL for verification. Must be fully qualified, including the scheme (http/https)."
+    },
+    {
+      "name": "expectedStatusCode",
+      "type": "int",
+      "label": "Expected HTTP Status Code",
+      "defaultValue": "200",
+      "required": true,
+      "helpMarkDown": "Optional. The expected HTTP status code from the request. Defaults to `200`."
+    },
+    {
+      "name": "useAuthentication",
+      "type": "boolean",
+      "label": "Use Authentication",
+      "defaultValue": "false",
+      "required": false,
+      "helpMarkDown": "Optional. Indicates if authentication is required for the request."
+    },
+    {
+      "name": "authenticationMethod",
+      "type": "pickList",
+      "label": "Authentication Method",
+      "options": {
+        "basic": "Basic",
+        "header": "Header Token"
+      },
+      "defaultValue": "basic",
+      "required": false,
+      "visibleRule": "useAuthentication = true",
+      "helpMarkDown": "Optional. Specifies the authentication type (`basic` or `header`). Defaults to `'basic'`. Only considered if `useAuthentication` is `true`."
+    },
+    {
+      "name": "httpMethod",
+      "type": "pickList",
+      "label": "HTTP Method",
+      "options": {
+        "GET": "GET",
+        "POST": "POST",
+        "PUT": "PUT",
+        "DELETE": "DELETE",
+        "PATCH": "PATCH"
+      },
+      "defaultValue": "GET",
+      "required": true,
+      "helpMarkDown": "Optional. The HTTP method to use for the request. Defaults to `'GET'`."
+    },
+    {
+      "name": "requestPayload",
+      "type": "string",
+      "label": "Request Payload",
+      "defaultValue": "",
+      "required": false,
+      "visibleRule": "httpMethod = POST || httpMethod = PUT || httpMethod = PATCH",
+      "helpMarkDown": "Optional. JSON payload for POST, PUT, or PATCH requests."
+    },
+    {
+      "name": "contentType",
+      "type": "string",
+      "label": "Content-Type",
+      "defaultValue": "application/json",
+      "required": false,
+      "helpMarkDown": "Optional. The Content-Type header for the request. Defaults to `'application/json'`."
+    },
+    {
+      "name": "logResponse",
+      "type": "boolean",
+      "label": "Show Response Content",
+      "defaultValue": "false",
+      "required": false,
+      "helpMarkDown": "Optional. Enable this option to log the response content in the build or release logs. __Caution__: Be mindful when enabling this feature, especially in production environments, as the response may contain sensitive information that could be exposed in log files. Review the content being logged and consider the security implications before enabling logging of response content."
+    },
+    {
+      "name": "responseOutput",
+      "type": "string",
+      "label": "Response Output Variable",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Optional. An optional task variable as an output to store the response body. Specify the variable name to store the response content. This can be used in subsequent pipeline tasks."
+    },
+    {
+      "name": "expectedPayload",
+      "type": "string",
+      "label": "Expected Response Payload",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Optional. The expected response payload for validation purposes."
+    },
+    {
+      "name": "responseFilterPath",
+      "type": "string",
+      "label": "Response Filter Path",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Defines JSONPath expression for JSON responses to filter data, uses CSS-like selectors with cheerio.js for HTML/XML, and specifies a substring for plain text. It aids in data validation by matching with `expectedPayload`."
+    },
+    {
+      "name": "maxRetries",
+      "type": "int",
+      "label": "Retry Count",
+      "defaultValue": "3",
+      "required": false,
+      "helpMarkDown": "Optional. Controls the number of retry attempts upon failure. Defaults to `3`."
+    },
+    {
+      "name": "delayBetweenRetries",
+      "type": "int",
+      "label": "Retry Delay (Seconds)",
+      "defaultValue": "5",
+      "required": false,
+      "helpMarkDown": "Optional. The delay between retries, in seconds. Defaults to `5`."
+    },
+    {
+      "name": "environmentVariables",
+      "type": "multiLine",
+      "label": "Environment Variables",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Optional. Additional environment variables for authentication. Use the format `KEY=VALUE` for each variable, separated by new lines."
+    }
+  ],
+  "execution": {
+    "Node10": {
+      "target": "src/SiteVerifier.js"
+    },
+    "Node16": {
+      "target": "src/SiteVerifier.js"
+    }
+  }
+}
