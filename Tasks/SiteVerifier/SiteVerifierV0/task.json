@@ -4,13 +4,13 @@
   "friendlyName": "Site Verifier",
   "description": "Verifies the availability and correctness of specified URLs, supporting various HTTP methods, authentication, and payload verification.",
   "author": "Salih Sert",
-  "helpMarkDown": "Please refer to the README.md for detailed usage instructions. For more examples and common use cases, see [Example Usage](link-to-examples).",
+  "helpMarkDown": "https://marketplace.visualstudio.com/items?itemName=salihsert.#{{id}}#",
   "category": "Utility",
   "visibility": ["Build", "Release"],
   "version": {
     "Major": 0,
     "Minor": 0,
-    "Patch": 22
+    "Patch": 23
   },
   "instanceNameFormat": "Verify URL $(siteUrl) with expected code $(expectedStatusCode)",
   "groups": [
