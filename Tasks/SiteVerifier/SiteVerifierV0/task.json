@@ -3,8 +3,8 @@
   "name": "#{{name}}#",
   "friendlyName": "Site Verifier",
   "description": "Verifies the availability and correctness of specified URLs, supporting various HTTP methods, authentication, and payload verification.",
-  "author": "Salih Sert",
-  "helpMarkDown": "[Learn more about this task](https://marketplace.visualstudio.com/items?itemName=salihsert.#{{id}}#)",
+  "author": "Site Verifier",
+  "helpMarkDown": "[Learn more about this task](https://marketplace.visualstudio.com/items?itemName=#{{publisher}}#.#{{id}}#)",
   "category": "Utility",
   "visibility": ["Build", "Release"],
   "version": {
