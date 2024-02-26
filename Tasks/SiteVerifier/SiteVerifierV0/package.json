@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "test": "jest",
-    "clean": "rimraf ./*.js"
+    "test:unit": "jest tests/unit --testMatch=\"**/*.test.ts\"",
+    "test:integration": "jest tests/integration --testMatch=\"**/*.test.ts\""
   },
   "author": "Salih Sert",
   "license": "MIT",

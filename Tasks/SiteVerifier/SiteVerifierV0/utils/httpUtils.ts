@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import * as tl from "azure-pipelines-task-lib/task";
 
-interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
+export interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
   logResponse: boolean;
 }
 
@@ -14,17 +14,12 @@ export async function makeHttpRequest(
     );
     config.timeout = config.timeout || 10000;
     const response = await axios(config);
-    if (config.logResponse) {
-      tl.debug(
-        `Successfully completed HTTP request: Method=${config.method}, URL=${
+    const logMessage = config.logResponse
+      ? `Successfully completed HTTP request: Method=${config.method}, URL=${
           config.url
         }, Status=${response.status}, Response=${JSON.stringify(response.data)}`
-      );
-    } else {
-      tl.debug(
-        `Successfully completed HTTP request: Method=${config.method}, URL=${config.url}, Status=${response.status}`
-      );
-    }
+      : `Successfully completed HTTP request: Method=${config.method}, URL=${config.url}, Status=${response.status}`;
+    tl.debug(logMessage);
     return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {
