@@ -5,7 +5,8 @@
   "scripts": {
     "test": "jest",
     "test:unit": "jest tests/unit --testMatch=\"**/*.test.ts\"",
-    "test:integration": "jest tests/integration --testMatch=\"**/*.test.ts\""
+    "test:integration": "jest tests/integration --testMatch=\"**/*.test.ts\"",
+    "test:func": "jest tests/functional --testMatch=\"**/*.test.ts\""
   },
   "author": "Salih Sert",
   "license": "MIT",

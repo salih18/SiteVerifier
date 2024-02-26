@@ -9,6 +9,7 @@ artifacts/
 Tasks/**/**/*.js
 Tasks/**/**/.taskkey
 Tasks/**/**/tests/integration
+Tasks/**/**/tests/functional
 
 # Azure DevOps extension package file
 *.vsix
