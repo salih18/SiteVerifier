@@ -15,7 +15,7 @@ describe("parseResponseData", () => {
       },
       status: 200,
       statusText: "OK",
-      config: {},
+      config: { headers: {} } as any,
     };
     expect(parseResponseData(response)).toBe(responseData);
   });
@@ -29,7 +29,7 @@ describe("parseResponseData", () => {
       },
       status: 200,
       statusText: "OK",
-      config: {},
+      config: { headers: {} } as any,
     };
     const responseFilterPath = "key";
     expect(parseResponseData(response, responseFilterPath)).toEqual(
@@ -46,7 +46,7 @@ describe("parseResponseData", () => {
       },
       status: 200,
       statusText: "OK",
-      config: {},
+      config: { headers: {} } as any,
     };
     const responseFilterPath = "div";
     expect(parseResponseData(response, responseFilterPath)).toBe(

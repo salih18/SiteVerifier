@@ -2,7 +2,7 @@
   "manifestVersion": 1,
   "id": "239a924b-20fe-46d2-b9b1-f8fb92aae43b",
   "name": "Site Verifier",
-  "version": "0.0.26",
+  "version": "0.0.27",
   "publisher": "site-verifier",
   "targets": [
     {

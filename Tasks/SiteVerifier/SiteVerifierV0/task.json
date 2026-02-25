@@ -10,7 +10,7 @@
   "version": {
     "Major": 0,
     "Minor": 0,
-    "Patch": 26
+    "Patch": 27
   },
   "instanceNameFormat": "Verify URL $(siteUrl) with expected code $(expectedStatusCode)",
   "groups": [
