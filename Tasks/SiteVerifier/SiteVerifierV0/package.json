@@ -12,7 +12,7 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.21.4",
-    "azure-pipelines-task-lib": "^3.4.0",
+    "azure-pipelines-task-lib": "^4.17.0",
     "cheerio": "^1.0.0-rc.12",
     "lodash": "^4.17.21"
   },

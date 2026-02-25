@@ -1,0 +1,14 @@
+**/*.ts
+!Tasks/**/node_modules/**/*.d.ts
+**/*.test.*
+**/tests/**
+**/__mocks__/**
+**/jest.config.*
+**/tsconfig.json
+**/.git/**
+**/.github/**
+**/SECURITY.md
+**/LICENSE.md
+**/*.vsix
+**/package-lock.json
+**/SiteVerifierV1/**

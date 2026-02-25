@@ -1,0 +1,39 @@
+{
+  "manifestVersion": 1,
+  "id": "239a924b-20fe-46d2-b9b1-f8fb92aae43b",
+  "name": "Site Verifier",
+  "version": "0.0.26",
+  "publisher": "site-verifier",
+  "targets": [
+    {
+      "id": "Microsoft.VisualStudio.Services"
+    }
+  ],
+  "description": "Verifies the availability and correctness of specified URLs, supporting various HTTP methods, authentication, and payload verification.",
+  "categories": ["Azure Pipelines"],
+  "public": true,
+  "icons": {
+    "default": "Tasks/SiteVerifier/SiteVerifierV0/icon.png"
+  },
+  "content": {
+    "details": {
+      "path": "overview.md"
+    }
+  },
+  "files": [
+    {
+      "path": "Tasks/SiteVerifier/SiteVerifierV0",
+      "addressable": true
+    }
+  ],
+  "contributions": [
+    {
+      "id": "siteverifier-task",
+      "type": "ms.vss-distributed-task.task",
+      "targets": ["ms.vss-distributed-task.tasks"],
+      "properties": {
+        "name": "Tasks/SiteVerifier/SiteVerifierV0"
+      }
+    }
+  ]
+}

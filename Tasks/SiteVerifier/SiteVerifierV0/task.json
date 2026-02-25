@@ -1,16 +1,16 @@
 {
-  "id": "#{{id}}#",
-  "name": "#{{name}}#",
+  "id": "239a924b-20fe-46d2-b9b1-f8fb92aae43b",
+  "name": "SiteVerifier",
   "friendlyName": "Site Verifier",
   "description": "Verifies the availability and correctness of specified URLs, supporting various HTTP methods, authentication, and payload verification.",
   "author": "Site Verifier",
-  "helpMarkDown": "[Learn more about this task](https://marketplace.visualstudio.com/items?itemName=#{{publisher}}#.#{{id}}#)",
+  "helpMarkDown": "[Learn more about this task](https://marketplace.visualstudio.com/items?itemName=site-verifier.239a924b-20fe-46d2-b9b1-f8fb92aae43b)",
   "category": "Utility",
   "visibility": ["Build", "Release"],
   "version": {
     "Major": 0,
     "Minor": 0,
-    "Patch": 25
+    "Patch": 26
   },
   "instanceNameFormat": "Verify URL $(siteUrl) with expected code $(expectedStatusCode)",
   "groups": [
@@ -153,10 +153,10 @@
     }
   ],
   "execution": {
-    "Node10": {
+    "Node16": {
       "target": "src/SiteVerifier.js"
     },
-    "Node16": {
+    "Node20_1": {
       "target": "src/SiteVerifier.js"
     }
   }
