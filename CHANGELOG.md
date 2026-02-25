@@ -2,6 +2,12 @@
 
 All notable changes to the **Site Verifier** Azure DevOps extension will be documented in this file.
 
+## [0.0.28] - 2026-02-25
+
+### Changed
+- Removed deprecated **Node16** execution handler (EOL, causes Azure DevOps warnings)
+- Extension now runs exclusively on **Node20** (`Node20_1`)
+
 ## [0.0.27] - 2026-02-25
 
 ### Security

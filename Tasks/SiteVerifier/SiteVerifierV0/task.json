@@ -10,7 +10,7 @@
   "version": {
     "Major": 0,
     "Minor": 0,
-    "Patch": 27
+    "Patch": 28
   },
   "instanceNameFormat": "Verify URL $(siteUrl) with expected code $(expectedStatusCode)",
   "groups": [
@@ -153,9 +153,6 @@
     }
   ],
   "execution": {
-    "Node16": {
-      "target": "src/SiteVerifier.js"
-    },
     "Node20_1": {
       "target": "src/SiteVerifier.js"
     }
