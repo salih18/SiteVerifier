@@ -1,493 +1,534 @@
-# Site Verifier Task for Azure DevOps
+## Table of Contents
 
-<img src="https://site-verifier.gallerycdn.vsassets.io/extensions/site-verifier/239a924b-20fe-46d2-b9b1-f8fb92aae43b/0.0.5/1708973381790/images/icon.png" alt="SiteVerifier Icon" style="width: 200px; height: 200px;">
+- [Introduction](#introduction)
+- [Getting Started](#getting-started)
+- [Configuration](#configuration)
+  - [Task Parameters](#task-parameters)
+  - [Authentication Setup](#authentication-setup)
+  - [Configuring Retry Logic](#configuring-retry-logic)
+  - [Payload Verification](#payload-verification)
+- [Examples](#examples)
+- [Using Site Verifier in Azure DevOps Release Pipelines](#using-site-verifier-in-azure-devops-release-pipelines)
+  - [Configuration Steps](#configuration-steps)
+  - [Advanced Configuration (Optional)](#advanced-configuration-optional)
+  - [Execution and Results](#execution-and-results)
+  - [Best Practices](#best-practices)
+  - [Troubleshooting](#troubleshooting)
+    - [Common Pitfalls to Avoid](#common-pitfalls-to-avoid)
 
-## Introduction
+#### Introduction
 
-The **Site Verifier** task is essential for validating web services and APIs within Azure DevOps environments. It ensures the reliability and correctness of services throughout the CI/CD workflows, offering extensive features for comprehensive verification.
+##### Overview
 
-## Getting Started
+**Site Verifier** is a robust Azure DevOps extension designed to streamline the verification of your web services and APIs, ensuring reliability and correctness throughout your development and DevOps lifecycle. Integrate it into CI/CD pipelines for proactive quality assurance.
 
-- Installation is straightforward through the Azure DevOps Marketplace.
-- Add the **Site Verifier** task to any Build or Release pipeline.
-- Configure the target URL, expected status code, and optional parameters.
+##### Features
 
-## Configuration
+- **Versatile HTTP Support:** GET, POST, PUT, DELETE, PATCH methods.
+- **Comprehensive Verification:** Checks URLs, status codes, and response content.
+- **Flexible Requests:** Customize with headers, payloads, and authentication.
+- **Robust Response Handling:**  Filters JSON, HTML, XML, or plain text responses.
+- **Resilient Retries:**  Automatic retries for intermittent network issues.
+- **Customizable Content Handling:** Supports various content types.
+- **Detailed Logging:**  Optional response logging for troubleshooting.
+- **Workflow Integration:** Stores response data in variables for downstream use.
+- **Secure Configuration:**  Protects sensitive credentials with environment variables.
 
-| Parameter | Required | Default | Description |
-|-----------|----------|---------|-------------|
-| `siteUrl` | Yes | — | The target URL for verification (must include scheme) |
-| `expectedStatusCode` | Yes | `200` | The expected HTTP status code |
-| `httpMethod` | Yes | `GET` | HTTP method: `GET`, `POST`, `PUT`, `DELETE`, `PATCH` |
-| `useAuthentication` | No | `false` | Enable authentication for the request |
-| `authenticationMethod` | No | `basic` | Authentication type: `basic` or `header` |
-| `requestPayload` | No | — | JSON payload for POST, PUT, or PATCH requests |
-| `contentType` | No | `application/json` | Content-Type header for the request |
-| `expectedPayload` | No | — | Expected response payload for validation |
-| `responseFilterPath` | No | — | JSONPath, CSS selector, or keyword filter for response |
-| `logResponse` | No | `false` | Log response content in pipeline output |
-| `responseOutput` | No | — | Pipeline variable name to store the response body |
-| `maxRetries` | No | `3` | Number of retry attempts on failure |
-| `delayBetweenRetries` | No | `5` | Delay in seconds between retries |
-| `environmentVariables` | No | — | Key=Value pairs for authentication credentials |
+These features are designed to empower development and operations teams with the tools they need to ensure the robustness and reliability of their web services, making the **SiteVerifier** task a cornerstone of modern CI/CD practices.
 
----
+#### Getting Started
 
-## Examples
+##### Installation
 
-### 1. Basic Health Check (GET)
+To incorporate the **SiteVerifier** task into your Azure DevOps pipeline, follow these steps:
 
-Verify that a URL returns HTTP 200:
+1. Navigate to the Azure DevOps Marketplace.
+2. Search for "Site Verifier."
+3. Select the task and follow the provided instructions to install it in your organization.
 
-```yaml
-steps:
-  - task: SiteVerifier@0
-    displayName: 'Health Check - Production'
-    inputs:
-      siteUrl: 'https://api.example.com/health'
-      expectedStatusCode: '200'
-      httpMethod: 'GET'
-```
+##### Quick Start Guide
 
-### 2. Verify a Specific HTTP Status Code
-
-Check that an endpoint returns a specific status code (e.g., 201 Created):
+To initiate a basic verification using the **SiteVerifier** task, add the following step to your pipeline configuration:
 
 ```yaml
 steps:
-  - task: SiteVerifier@0
-    displayName: 'Verify Resource Creation Endpoint'
-    inputs:
-      siteUrl: 'https://api.example.com/resources'
-      expectedStatusCode: '201'
-      httpMethod: 'POST'
-      requestPayload: '{"name": "test-resource"}'
-      contentType: 'application/json'
+- task: SiteVerifier@0
+  inputs:
+    siteUrl: 'https://example.com'
+    expectedStatusCode: 200
+    httpMethod: 'GET'
 ```
 
-### 3. POST with Payload Verification
+This configuration sends a GET request to `https://example.com`, expecting a `200 OK` response. It provides a foundational demonstration of the task's core functionality, ideal for initial integration into your pipeline.
 
-Send a POST request and verify the response body matches expected content:
+#### Configuration
+
+Below is a comprehensive example demonstrating the **SiteVerifier** task's configuration with various input parameters:
 
 ```yaml
 steps:
-  - task: SiteVerifier@0
-    displayName: 'Verify API Response'
-    inputs:
-      siteUrl: 'https://api.example.com/data'
-      expectedStatusCode: '200'
-      httpMethod: 'POST'
-      requestPayload: '{"query": "status"}'
-      contentType: 'application/json'
-      expectedPayload: '{"status": "healthy", "version": "2.0"}'
+- task: SiteVerifier@0
+  inputs:
+    siteUrl: 'https://example.com/api' # The fully qualified URL for the HTTP request.
+    expectedStatusCode: 200 # The expected HTTP status code for a successful response.
+    useAuthentication: true # Indicates if the request requires authentication.
+    authenticationMethod: 'basic' # Authentication method: 'basic' or 'header'.
+    requestPayload: '{"status": "ok"}' # JSON string needed for POST, PUT, or PATCH methods.
+    httpMethod: 'GET' # The HTTP method for the request.
+    contentType: 'application/json' # Content-Type header for the request.
+    logResponse: true # Option to log the response body for debugging.
+    responseOutput: 'responseContent' # Variable to store response body for further processing.
+    responseFilterPath: 'data.result' # Path to filter specific data from the response.
+    expectedPayload: '{"status": "ok"}' # Expected response payload for validation.
+    maxRetries: 3 # Number of retries on failure.
+    delayBetweenRetries: 5 # Delay in seconds between retries.
+  env:
+    SITE_USERNAME: $(Site_Username) # Environment variable for Basic Auth username.
+    SITE_PASSWORD: $(Site_Password) # Environment variable for Basic Auth password.
+    SITE_AUTH_TOKEN: $(Site_Auth_Token) # Environment variable for pre-encoded authorization header.
 ```
 
-### 4. PUT Request
+##### Task Parameters
 
-Update a resource and verify the response:
+- **`siteUrl`**: Required. The target URL for verification. Must be fully qualified, including the scheme (http/https).
+- **`expectedStatusCode`**: Optional. The expected HTTP status code from the request. Defaults to `200`.
+- **`useAuthentication`**: Optional. Indicates if authentication is required for the request.
+- **`authenticationMethod`**: Optional. Specifies the authentication type (`basic` or `header`). Defaults to `'basic'`. Only considered if `useAuthentication` is `true`.
+- **`requestPayload`**: Optional. JSON payload for POST, PUT, or PATCH requests.
+- **`httpMethod`**: Optional. The HTTP method to use for the request. Defaults to `'GET'`.
+- **`contentType`**: Optional. The Content-Type header for the request. Defaults to `'application/json'`. Supported `contentType` values: `application/json`, `text/html`, `application/xml`, `text/xml`, `text/plain`.
+- **`logResponse`**: Optional. Enable this option to log the response content in the build or release logs. **Caution**: Be mindful when enabling this feature, especially in production environments, as the response may contain sensitive information that could be exposed in log files. Review the content being logged and consider the security implications before enabling logging of response content.
+- **`responseOutput`**: Optional. An optional task variable as an output to store the response body.
+- **`responseFilterPath`**: Optional. JSON path expression to filter specific response data. **JSON Responses**: The `responseFilterPath` is used as a JSONPath expression, allowing precise selection within a JSON structure for validating specific parts of the response. **HTML/XML Responses**: With the cheerio.js library, `responseFilterPath` employs CSS-like selectors to pinpoint elements in HTML or XML, aiding in the extraction and validation of data from complex documents. **Plain Text Responses**: For plain text, `responseFilterPath` specifies a substring to find within the text. Existence of this substring switches a boolean value (true if found, false if not), which is then evaluated against `expectedPayload` for validation success.
+- **`expectedPayload`**: Optional. The expected response payload for validation purposes. This setting is crucial for ensuring that the response from the tested endpoint matches predefined expectations, facilitating comprehensive testing across different response types. **For JSON and HTML/XML**: It expects the payload to match specified values or structures extracted using `responseFilterPath`. This could be a specific JSON object, an array, or text extracted from HTML/XML elements. Otherwise it returns null. **For Plain Text**: When used in conjunction with `responseFilterPath`, it verifies if the plain text search yields a true (presence) or false (absence) outcome, aligning this result with the expected boolean value specified in `expectedPayload`.
+- **`maxRetries`**: Optional. Controls the number of retry attempts upon failure. Defaults to `3`.
+- **`delayBetweenRetries`**: Optional. The delay between retries, in seconds. Defaults to `5`.
+- **`environmentVariables`**: Optional. Additional environment variables for authentication. Use the format `KEY=VALUE` for each variable, separated by new lines. Accepted keys: `SITE_USERNAME`, `SITE_PASSWORD`, `SITE_AUTH_TOKEN`. For yaml definitions there is also another way to pass env variables, see examples.
+
+#### Authentication Setup
+
+For endpoints requiring authentication, the **Site Verifier** task supports two methods: Basic Authentication and custom header authentication.
+
+- **Basic Authentication**:
+
+  ```yaml
+  useAuthentication: true
+  authenticationMethod: 'basic'
+  env:
+    SITE_USERNAME: $(Site_Username) # Environment variable for Basic Auth username.
+    SITE_PASSWORD: $(Site_Password) # Environment variable for Basic Auth password.
+  ```
+
+- **Header Authentication**:
+
+  ```yaml
+  useAuthentication: true
+  authenticationMethod: 'header'
+  env:
+    SITE_AUTH_TOKEN: $(Site_BasicAuth) # Environment variable for pre-encoded authorization header.
+  ```
+
+#### Configuring Retry Logic
+
+Adjust `maxRetries` and `delayBetweenRetries` based on endpoint reliability and pipeline tolerance:
 
 ```yaml
-steps:
-  - task: SiteVerifier@0
-    displayName: 'Update Configuration'
-    inputs:
-      siteUrl: 'https://api.example.com/config/123'
-      expectedStatusCode: '200'
-      httpMethod: 'PUT'
-      requestPayload: '{"setting": "enabled", "value": true}'
-      contentType: 'application/json'
+maxRetries: 3
+delayBetweenRetries: 10
 ```
 
-### 5. DELETE Request
+#### Payload Verification
 
-Verify that a resource is deleted successfully:
+1. **Defining Expected Payload**: Use `expectedPayload` to specify the exact expected response structure.
+2. **Filtering Response Data**: Utilize `responseFilterPath` to target specific data within the response.
+
+### Environment Variables
+
+#### `SITE_USERNAME`
+
+- **Description**: Specifies the Basic Auth username.
+- **Required**: Yes, if `useAuthentication` is `true` and `authenticationMethod` is `basic`.
+
+#### `SITE_PASSWORD`
+
+- **Description**: Specifies the Basic Auth password.
+- **Required**: Yes, if `useAuthentication` is `true` and `authenticationMethod` is `basic`.
+
+#### `SITE_AUTH_TOKEN`
+
+- **Description**: Contains the pre-encoded authorization header value.
+- **Required**: Yes, if `useAuthentication` is `true` and `authenticationMethod` is `header`.
+
+### Security and Best Practices for Environment Variables
+
+Securely manage environment variables to prevent unauthorized access and exposure in logs or outputs. Store sensitive information as secret variables and adhere to organizational security policies.
+
+### Examples
+
+#### Verifying HTTP Status Code
 
 ```yaml
-steps:
-  - task: SiteVerifier@0
-    displayName: 'Verify Resource Deletion'
-    inputs:
-      siteUrl: 'https://api.example.com/resources/456'
-      expectedStatusCode: '204'
-      httpMethod: 'DELETE'
+- task: SiteVerifier@0
+  displayName: "Verify HTTP Status Code"
+  inputs:
+    siteUrl: "https://httpbin.org/status/200"
+    expectedStatusCode: 200
+    httpMethod: "GET"
 ```
 
-### 6. PATCH Request
-
-Partially update a resource:
+#### Basic Authentication Check
 
 ```yaml
-steps:
-  - task: SiteVerifier@0
-    displayName: 'Patch User Settings'
-    inputs:
-      siteUrl: 'https://api.example.com/users/789'
-      expectedStatusCode: '200'
-      httpMethod: 'PATCH'
-      requestPayload: '{"notifications": false}'
-      contentType: 'application/json'
+- task: SiteVerifier@0
+  displayName: "Basic Authentication Check"
+  inputs:
+    siteUrl: "https://httpbin.org/basic-auth/user/passwd"
+    expectedStatusCode: 200
+    httpMethod: "GET"
+    useAuthentication: "true"
+    authenticationMethod: "basic"
+  env:
+    SITE_USERNAME: "user"
+    SITE_PASSWORD: "passwd"
 ```
 
----
-
-## Authentication
-
-### 7. Basic Authentication
-
-Use username and password credentials:
+#### Header Authentication Check
 
 ```yaml
-steps:
-  - task: SiteVerifier@0
-    displayName: 'Verify Protected Endpoint (Basic Auth)'
-    inputs:
-      siteUrl: 'https://api.example.com/admin/status'
-      expectedStatusCode: '200'
-      httpMethod: 'GET'
-      useAuthentication: true
-      authenticationMethod: 'basic'
-      environmentVariables: |
-        SITE_USERNAME=$(AdminUsername)
-        SITE_PASSWORD=$(AdminPassword)
+- task: SiteVerifier@0
+  displayName: "Header Authentication Check"
+  inputs:
+    siteUrl: "https://httpbin.org/bearer"
+    expectedStatusCode: 200
+    httpMethod: "GET"
+    useAuthentication: "true"
+    authenticationMethod: "header"
+  env:
+    SITE_AUTH_TOKEN: "Bearer dXNlcjpwYXNzd2Q="
 ```
 
-> **Tip:** Store `AdminUsername` and `AdminPassword` as secret pipeline variables or link them from a Variable Group.
-
-### 8. Header Token Authentication
-
-Use a Bearer token or custom header for authentication:
+#### POST Request Example
 
 ```yaml
-steps:
-  - task: SiteVerifier@0
-    displayName: 'Verify Protected Endpoint (Token Auth)'
-    inputs:
-      siteUrl: 'https://api.example.com/secure/data'
-      expectedStatusCode: '200'
-      httpMethod: 'GET'
-      useAuthentication: true
-      authenticationMethod: 'header'
-      environmentVariables: |
-        SITE_AUTH_TOKEN=Bearer $(ApiToken)
+- task: SiteVerifier@0
+  displayName: "Payload Verification with POST Request"
+  inputs:
+    siteUrl: "https://httpbin.org/post"
+    expectedStatusCode: 200
+    httpMethod: "POST"
+    requestPayload: '{"key": "value"}'
 ```
 
----
-
-## Response Filtering
-
-The `responseFilterPath` parameter supports different filter types based on the response content type.
-
-### 9. JSON Response Filtering (JSONPath)
-
-Extract and validate a nested JSON field using lodash path syntax:
+#### POST Request with Payload and Verification
 
 ```yaml
-steps:
-  - task: SiteVerifier@0
-    displayName: 'Verify API Version'
-    inputs:
-      siteUrl: 'https://api.example.com/info'
-      expectedStatusCode: '200'
-      httpMethod: 'GET'
-      responseFilterPath: 'data.version'
-      expectedPayload: '"2.1.0"'
+- task: SiteVerifier@0
+  displayName: "POST Request with Body and Payload Verification"
+  inputs:
+    siteUrl: "https://jsonplaceholder.typicode.com/posts"
+    expectedStatusCode: 201
+    httpMethod: "POST"
+    requestPayload: '{"title": "foo", "body": "bar", "userId": 1}'
+    expectedPayload: '{"title": "foo", "body": "bar", "userId": 1, "id": 101}'
 ```
 
-For nested objects:
+#### Response Filtering
 
 ```yaml
-steps:
-  - task: SiteVerifier@0
-    displayName: 'Verify Nested Config'
-    inputs:
-      siteUrl: 'https://api.example.com/config'
-      expectedStatusCode: '200'
-      httpMethod: 'GET'
-      responseFilterPath: 'settings.database.host'
-      expectedPayload: '"db.production.internal"'
+- task: SiteVerifier@0
+  displayName: "PUT Request with Response Filtering (Non-nested)"
+  inputs:
+    siteUrl: "https://jsonplaceholder.typicode.com/posts/1"
+    expectedStatusCode: 200
+    httpMethod: "PUT"
+    maxRetries: 1
+    requestPayload: '{"title": "foo", "body": "bar", "userId": 2}'
+    expectedPayload: "2"
+    logResponse: true
+    responseOutput: "my_response"
+    responseFilterPath: "userId"
 ```
 
-### 10. HTML Response Filtering (CSS Selectors)
-
-Extract content from HTML responses using CSS selectors (powered by Cheerio):
+#### Deeply Nested Response Filtering - 1
 
 ```yaml
-steps:
-  - task: SiteVerifier@0
-    displayName: 'Verify Page Title'
-    inputs:
-      siteUrl: 'https://www.example.com'
-      expectedStatusCode: '200'
-      httpMethod: 'GET'
-      contentType: 'text/html'
-      responseFilterPath: 'title'
-      expectedPayload: 'Welcome to Example'
+- task: SiteVerifier@0
+  displayName: "GET Request with Deeply Nested Response Filtering (City)"
+  inputs:
+    siteUrl: "https://jsonplaceholder.typicode.com/users/1"
+    expectedStatusCode: 200
+    httpMethod: "GET"
+    expectedPayload: "Gwenborough"
+    responseFilterPath: "address.city"
 ```
 
-Extract content from a specific element:
+#### Deeply Nested Response Filtering - 2
 
 ```yaml
-steps:
-  - task: SiteVerifier@0
-    displayName: 'Verify Footer Content'
-    inputs:
-      siteUrl: 'https://www.example.com'
-      expectedStatusCode: '200'
-      httpMethod: 'GET'
-      contentType: 'text/html'
-      responseFilterPath: '.footer .version'
-      expectedPayload: 'v2.0'
+- task: SiteVerifier@0
+  displayName: "GET Request with Deeply Nested Response Filtering"
+  inputs:
+    siteUrl: "https://jsonplaceholder.typicode.com/users/1"
+    expectedStatusCode: 200
+    httpMethod: "GET"
+    expectedPayload: '{ "lat": "-37.3159", "lng": "81.1496" }'
+    responseFilterPath: "address.geo"
 ```
 
-### 11. XML Response Filtering
-
-Filter XML responses using CSS-like selectors:
+#### XML Response Filtering and Validation
 
 ```yaml
-steps:
-  - task: SiteVerifier@0
-    displayName: 'Verify SOAP Response'
-    inputs:
-      siteUrl: 'https://api.example.com/soap/status'
-      expectedStatusCode: '200'
-      httpMethod: 'POST'
-      contentType: 'application/xml'
-      requestPayload: '<StatusRequest><service>auth</service></StatusRequest>'
-      responseFilterPath: 'StatusResponse > status'
-      expectedPayload: 'running'
+- task: SiteVerifier@0
+  displayName: "Response in XML"
+  inputs:
+    siteUrl: "https://httpbin.org/xml"
+    expectedStatusCode: 200
+    httpMethod: "GET"
+    contentType: "application/xml"
+    responseFilterPath: "slide > title"
+    expectedPayload: "Wake up to WonderWidgets!"
 ```
 
-### 12. Plain Text Keyword Matching
-
-Check that a plain text response contains specific keywords (comma-separated, all must match):
+#### TEXT Response Filtering and Validation
 
 ```yaml
-steps:
-  - task: SiteVerifier@0
-    displayName: 'Verify Text Response Contains Keywords'
-    inputs:
-      siteUrl: 'https://api.example.com/status.txt'
-      expectedStatusCode: '200'
-      httpMethod: 'GET'
-      contentType: 'text/plain'
-      responseFilterPath: 'healthy, running, production'
-      expectedPayload: 'true'
+- task: SiteVerifier@0
+  displayName: "Response in Text Plain"
+  inputs:
+    siteUrl: "https://httpbin.org/deny"
+    expectedStatusCode: 200
+    httpMethod: "GET"
+    contentType: "text/plain",
+    responseFilterPath: "YOU SHOULDN'T BE HERE"
+    expectedPayload: true
 ```
 
----
-
-## Response Output
-
-### 13. Store Response in a Pipeline Variable
-
-Capture the response body and use it in subsequent tasks:
+#### HTML Response Filtering and Validation
 
 ```yaml
-steps:
-  - task: SiteVerifier@0
-    displayName: 'Fetch API Token'
-    inputs:
-      siteUrl: 'https://auth.example.com/token'
-      expectedStatusCode: '200'
-      httpMethod: 'POST'
-      requestPayload: '{"client_id": "my-app", "grant_type": "client_credentials"}'
-      contentType: 'application/json'
-      responseOutput: 'AuthToken'
-      responseFilterPath: 'access_token'
-
-  - script: |
-      echo "Token retrieved successfully"
-      echo "Using token in next step..."
-    displayName: 'Use Retrieved Token'
-    env:
-      TOKEN: $(AuthToken)
+- task: SiteVerifier@0
+  displayName: "Response in HTML"
+  inputs:
+    siteUrl: "https://httpbin.org/html"
+    expectedStatusCode: 200
+    httpMethod: "GET"
+    contentType: "text/html"
+    responseFilterPath: "h1"
+    expectedPayload: "Herman Melville - Moby-Dick"
 ```
 
-### 14. Response Logging
-
-Enable response logging for debugging (use with caution in production):
+#### Using Response Output Variable
 
 ```yaml
-steps:
-  - task: SiteVerifier@0
-    displayName: 'Debug API Response'
-    inputs:
-      siteUrl: 'https://api.example.com/debug'
-      expectedStatusCode: '200'
-      httpMethod: 'GET'
-      logResponse: true
+jobs:
+- job: VerifyAndProcess
+  steps:
+    - task: SiteVerifier@0
+      displayName: "Check Authentication Status"
+      inputs:
+        siteUrl: "https://httpbin.org/basic-auth/user/passwd"
+        expectedStatusCode: 200
+        httpMethod: "GET"
+        useAuthentication: true
+        authenticationMethod: "basic"
+        responseFilterPath: "authenticated" # Filters the JSON response for the 'authenticated' property. The actual API endpoint returns a JSON object {"authenticated": true, "user": "user"}. We use this property to determine if the request was successfully authenticated.
+        responseOutput: "isAuthenticated" # The value of the 'authenticated' property (true or false) is stored in 'isAuthenticated'. This allows us to use the authentication status in subsequent steps.
+        logResponse: true
+      env:
+        SITE_USERNAME: "user"
+        SITE_PASSWORD: "passwd"
+
+    # Bash task for authenticated user
+    - bash: |
+        echo "User is authenticated. Running authenticated script..."
+      displayName: "Authenticated User Script"
+      condition: eq(variables.isAuthenticated, 'true') # This condition checks if 'isAuthenticated' equals 'true'. It confirms that the API responded with {"authenticated": true, "user": "user"}, indicating successful authentication.
+
+    # Bash task for unauthenticated user
+    - bash: |
+        echo "User is not authenticated. Running unauthenticated script..."
+      displayName: "Unauthenticated User Script"
+      condition: ne(variables.isAuthenticated, 'true') # This condition checks if 'isAuthenticated' does not equal 'true'. It indicates that the API response did not confirm authentication, either because 'authenticated' was false or the property was absent.
 ```
-
-> **Caution:** Be mindful when enabling `logResponse` in production environments. The response may contain sensitive information that will be visible in pipeline logs.
-
----
-
-## Retry Configuration
-
-### 15. Custom Retry Logic
-
-Configure retry attempts and delay for unreliable endpoints:
-
-```yaml
-steps:
-  - task: SiteVerifier@0
-    displayName: 'Verify with Retries'
-    inputs:
-      siteUrl: 'https://api.example.com/health'
-      expectedStatusCode: '200'
-      httpMethod: 'GET'
-      maxRetries: '5'
-      delayBetweenRetries: '10'
-```
-
-### 16. No Retries (Single Attempt)
-
-For fast-fail scenarios:
-
-```yaml
-steps:
-  - task: SiteVerifier@0
-    displayName: 'Quick Status Check'
-    inputs:
-      siteUrl: 'https://api.example.com/ping'
-      expectedStatusCode: '200'
-      httpMethod: 'GET'
-      maxRetries: '1'
-      delayBetweenRetries: '0'
-```
-
----
 
 ## Using Site Verifier in Azure DevOps Release Pipelines
 
-The Site Verifier task integrates seamlessly into Release pipelines for post-deployment verification.
+### Introduction
 
-### 17. Post-Deployment Verification
+The Site Verifier task integrates seamlessly into Azure DevOps Release pipelines, ensuring the availability and functionality of your web applications and APIs post-deployment. This documentation provides a comprehensive guide to configuring the Site Verifier task within a Release pipeline.
 
-Add to a release stage to verify a deployment was successful:
+### Prerequisites
 
-```yaml
-steps:
-  - task: SiteVerifier@0
-    displayName: 'Post-Deploy Health Check'
-    inputs:
-      siteUrl: 'https://$(Environment).example.com/health'
-      expectedStatusCode: '200'
-      httpMethod: 'GET'
-      maxRetries: '5'
-      delayBetweenRetries: '15'
-```
+Before proceeding, ensure the following prerequisites are met:
 
-### 18. Multi-Endpoint Verification
+- Installation of the Site Verifier task from the Azure DevOps Marketplace.
+- Adequate permissions to edit Release pipelines within your Azure DevOps project.
 
-Verify multiple endpoints after deployment:
+### Configuration Steps
 
-```yaml
-steps:
-  - task: SiteVerifier@0
-    displayName: 'Verify API Health'
-    inputs:
-      siteUrl: 'https://api.example.com/health'
-      expectedStatusCode: '200'
-      httpMethod: 'GET'
+Follow these steps to effectively set up the Site Verifier task in your Azure DevOps Release pipeline:
 
-  - task: SiteVerifier@0
-    displayName: 'Verify Frontend'
-    inputs:
-      siteUrl: 'https://www.example.com'
-      expectedStatusCode: '200'
-      httpMethod: 'GET'
-      contentType: 'text/html'
+#### 1. Add the Task to Your Release Pipeline
 
-  - task: SiteVerifier@0
-    displayName: 'Verify Auth Service'
-    inputs:
-      siteUrl: 'https://auth.example.com/.well-known/openid-configuration'
-      expectedStatusCode: '200'
-      httpMethod: 'GET'
-```
+Incorporate the Site Verifier task into your pipeline:
 
-### 19. Full Pipeline Example
+- Access the Release pipeline.
 
-A complete pipeline that builds, deploys, and verifies:
+- Enter editing mode.
 
-```yaml
-trigger:
-  - main
+- Add the Site Verifier task.
 
-pool:
-  vmImage: 'ubuntu-latest'
+  ![Add Site Verifier Task](https://site-verifier.gallerycdn.vsassets.io/extensions/site-verifier/e4deb23b-c46c-44f0-9d5f-e0589de3c793/0.0.44/1708974383915/images/Add_Siteverifier.png)
 
-stages:
-  - stage: Build
-    jobs:
-      - job: BuildApp
-        steps:
-          - script: echo "Building application..."
-            displayName: 'Build'
+#### 2. Configure Task Parameters
 
-  - stage: Deploy
-    dependsOn: Build
-    jobs:
-      - job: DeployApp
-        steps:
-          - script: echo "Deploying to staging..."
-            displayName: 'Deploy'
+Tailor task parameters to your specific requirements:
 
-  - stage: Verify
-    dependsOn: Deploy
-    jobs:
-      - job: SiteVerification
-        steps:
-          - task: SiteVerifier@0
-            displayName: 'Verify Staging API'
-            inputs:
-              siteUrl: 'https://staging-api.example.com/health'
-              expectedStatusCode: '200'
-              httpMethod: 'GET'
-              maxRetries: '5'
-              delayBetweenRetries: '10'
+- **URL to Verify (siteUrl):** Enter the URL for verification.
 
-          - task: SiteVerifier@0
-            displayName: 'Verify API Response'
-            inputs:
-              siteUrl: 'https://staging-api.example.com/version'
-              expectedStatusCode: '200'
-              httpMethod: 'GET'
-              responseFilterPath: 'version'
-              expectedPayload: '"$(Build.BuildNumber)"'
-              logResponse: true
+- **Expected HTTP Status Code (expectedStatusCode):** Define the expected HTTP status code.
 
-          - task: SiteVerifier@0
-            displayName: 'Verify Protected Endpoint'
-            inputs:
-              siteUrl: 'https://staging-api.example.com/admin/status'
-              expectedStatusCode: '200'
-              httpMethod: 'GET'
-              useAuthentication: true
-              authenticationMethod: 'header'
-              environmentVariables: |
-                SITE_AUTH_TOKEN=Bearer $(StagingApiToken)
-```
+- Configure additional parameters under the **Advanced** section.
 
----
+  ![Configure Parameters](https://site-verifier.gallerycdn.vsassets.io/extensions/site-verifier/e4deb23b-c46c-44f0-9d5f-e0589de3c793/0.0.44/1708974383915/images/Parameters_Siteverifier.png)
 
-## Best Practices
+#### 3. Configure Environment Variables
 
-- **Use secret variables** for all authentication credentials — never hardcode tokens or passwords.
-- **Set appropriate retry values** — use higher retries and delays for post-deployment checks where services may need warm-up time.
-- **Use `responseFilterPath`** to validate specific fields rather than entire response bodies, which may change between deployments.
-- **Enable `logResponse` only for debugging** — disable it in production pipelines to avoid exposing sensitive data in logs.
-- **Store responses in variables** with `responseOutput` to chain verification steps or pass data between tasks.
+For sites requiring authentication:
 
-## Troubleshooting
+- Set up `SITE_USERNAME` and `SITE_PASSWORD` as secret variables for Basic Authentication.
 
-| Issue | Solution |
-|-------|----------|
-| Task fails with timeout | Increase `maxRetries` and `delayBetweenRetries` |
-| Authentication errors | Verify environment variables are set correctly and credentials are valid |
-| Unexpected payload mismatch | Enable `logResponse` to inspect the actual response content |
-| Wrong content type | Set the `contentType` parameter to match your endpoint's expected format |
-| Missing environment variables | Ensure `environmentVariables` input uses the `KEY=VALUE` format, one per line |
+- Alternatively, for token-based authentication, use `SITE_AUTH_TOKEN`.
 
-Overall, the **Site Verifier** task offers a comprehensive solution for ensuring the reliability and functionality of web services and APIs within Azure DevOps pipelines, supporting modern CI/CD practices.
+- Ensure proper mapping and accessibility of secret variables.
+
+  ![Environment Variables Setup](https://site-verifier.gallerycdn.vsassets.io/extensions/site-verifier/e4deb23b-c46c-44f0-9d5f-e0589de3c793/0.0.44/1708974383915/images/Release_Task_Env_Variables.png)
+
+### Examples
+
+> Please notice the horizontal scroll to see the other use cases
+
+<div style="overflow-x:scroll;white-space:nowrap;padding:20px 0;padding:20px;border-radius:10px;box-shadow:0 4px 6px rgba(0, 0, 0, 0.1);margin-bottom:20px;">
+  <div style="display:inline-block;margin-right:20px;padding:10px;border-radius:8px;background:#a3a4a330;box-shadow:0 4px 6px rgba(0, 0, 0, 0.1);">
+    <div style="padding-bottom:10px;border-bottom:1px solid #ddd;">
+      <h3 style="margin:0;">Get API with Authentication</h3>
+    </div>
+    <img src="https://site-verifier.gallerycdn.vsassets.io/extensions/site-verifier/239a924b-20fe-46d2-b9b1-f8fb92aae43b/0.0.5/1708973381790/images/Release_Task_Get_Example_Header.png" alt="Image 1" style="max-width:100%;height:auto;">
+  </div>
+  <div style="display:inline-block;margin-right:20px;padding:10px;border-radius:8px;background:#a3a4a330;box-shadow:0 4px 6px rgba(0, 0, 0, 0.1);">
+    <div style="padding-bottom:10px;border-bottom:1px solid #ddd;">
+      <h3 style="margin:0;">Post API with Payload Verification</h3>
+    </div>
+    <img src="https://site-verifier.gallerycdn.vsassets.io/extensions/site-verifier/239a924b-20fe-46d2-b9b1-f8fb92aae43b/0.0.5/1708973381790/images/Release_Task_Post_Example.png" alt="Image 2" style="max-width:100%;height:auto;">
+  </div>
+  <div style="display:inline-block;margin-right:20px;padding:10px;border-radius:8px;background:#a3a4a330;box-shadow:0 4px 6px rgba(0, 0, 0, 0.1);">
+    <div style="padding-bottom:10px;border-bottom:1px solid #ddd;">
+      <h3 style="margin:0;">Post API</h3>
+    </div>
+    <img src="https://site-verifier.gallerycdn.vsassets.io/extensions/site-verifier/239a924b-20fe-46d2-b9b1-f8fb92aae43b/0.0.5/1708973381790/images/Response_Filter_Example.png" alt="Image 3" style="max-width:100%;height:auto;">
+  </div>
+  <div style="display:inline-block;margin-right:20px;padding:10px;border-radius:8px;background:#a3a4a330;box-shadow:0 4px 6px rgba(0, 0, 0, 0.1);">
+    <div style="padding-bottom:10px;border-bottom:1px solid #ddd;">
+      <h3 style="margin:0;">Nested Response Filter</h3>
+    </div>
+    <img src="https://site-verifier.gallerycdn.vsassets.io/extensions/site-verifier/239a924b-20fe-46d2-b9b1-f8fb92aae43b/0.0.5/1708973381790/images/Nested_Response_Filter_Example_Get.png" alt="Image 4" style="max-width:100%;height:auto;">
+  </div>
+  <div style="display:inline-block;margin-right:20px;padding:10px;border-radius:8px;background:#a3a4a330;box-shadow:0 4px 6px rgba(0, 0, 0, 0.1);">
+    <div style="padding-bottom:10px;border-bottom:1px solid #ddd;">
+      <h3 style="margin:0;">Response Filtering Payload Verification</h3>
+    </div>
+    <img src="https://site-verifier.gallerycdn.vsassets.io/extensions/site-verifier/239a924b-20fe-46d2-b9b1-f8fb92aae43b/0.0.5/1708973381790/images/Response_Filtering_Payload_Verification_Example.png" alt="Image 5" style="max-width:100%;height:auto;">
+  </div>
+  <div style="display:inline-block;margin-right:20px;padding:10px;border-radius:8px;background:#a3a4a330;box-shadow:0 4px 6px rgba(0, 0, 0, 0.1);">
+    <div style="padding-bottom:10px;border-bottom:1px solid #ddd;">
+      <h3 style="margin:0;">Response Filter (XML)</h3>
+    </div>
+    <img src="https://site-verifier.gallerycdn.vsassets.io/extensions/site-verifier/239a924b-20fe-46d2-b9b1-f8fb92aae43b/0.0.5/1708973381790/images/Response_Filter_Example_XML.png" alt="Image 6" style="max-width:100%;height:auto;">
+  </div>
+  <div style="display:inline-block;margin-right:20px;padding:10px;border-radius:8px;background:#a3a4a330;box-shadow:0 4px 6px rgba(0, 0, 0, 0.1);">
+    <div style="padding-bottom:10px;border-bottom:1px solid #ddd;">
+      <h3 style="margin:0;">Response Filter (TXT)</h3>
+    </div>
+    <img src="https://site-verifier.gallerycdn.vsassets.io/extensions/site-verifier/239a924b-20fe-46d2-b9b1-f8fb92aae43b/0.0.5/1708973381790/images/Response_Filter_Example_TXT.png" alt="Image 7" style="max-width:100%;height:auto;">
+  </div>
+  <div style="display:inline-block;margin-right:20px;padding:10px;border-radius:8px;background:#a3a4a330;box-shadow:0 4px 6px rgba(0, 0, 0, 0.1);">
+    <div style="padding-bottom:10px;border-bottom:1px solid #ddd;">
+      <h3 style="margin:0;">Response Filter (HTML)</h3>
+    </div>
+    <img src="https://site-verifier.gallerycdn.vsassets.io/extensions/site-verifier/239a924b-20fe-46d2-b9b1-f8fb92aae43b/0.0.5/1708973381790/images/Response_Filter_Example_HTML.png" alt="Image 8" style="max-width:100%;height:auto;">
+  </div>
+  <div style="display:inline-block;margin-right:20px;padding:10px;border-radius:8px;background:#a3a4a330;box-shadow:0 4px 6px rgba(0, 0, 0, 0.1);">
+    <div style="padding-bottom:10px;border-bottom:1px solid #ddd;">
+      <h3 style="margin:0;">Release Tasks (Success)</h3>
+    </div>
+    <img src="https://site-verifier.gallerycdn.vsassets.io/extensions/site-verifier/239a924b-20fe-46d2-b9b1-f8fb92aae43b/0.0.5/1708973381790/images/Release_Tasks_Example_Success.png" alt="Image 9" style="max-width:100%;height:auto;">
+  </div>
+  <div style="display:inline-block;margin-right:20px;padding:10px;border-radius:8px;background:#a3a4a330;box-shadow:0 4px 6px rgba(0, 0, 0, 0.1);">
+    <div style="padding-bottom:10px;border-bottom:1px solid #ddd;">
+      <h3 style="margin:0;">Response Output </h3>
+    </div>
+    <img src="https://site-verifier.gallerycdn.vsassets.io/extensions/site-verifier/239a924b-20fe-46d2-b9b1-f8fb92aae43b/0.0.5/1708973381790/images/Response_Output_Variable_Example.png" alt="Image 9" style="max-width:100%;height:auto;">
+  </div>
+  <div style="display:inline-block;margin-right:20px;padding:10px;border-radius:8px;background:#a3a4a330;box-shadow:0 4px 6px rgba(0, 0, 0, 0.1);">
+    <div style="padding-bottom:10px;border-bottom:1px solid #ddd;">
+      <h3 style="margin:0;">Response Output - Part 2</h3>
+    </div>
+    <img src="https://site-verifier.gallerycdn.vsassets.io/extensions/site-verifier/239a924b-20fe-46d2-b9b1-f8fb92aae43b/0.0.5/1708973381790/images/Response_Output_Variable_Example_Part_2.png" alt="Image 9" style="max-width:100%;height:auto;">
+  </div>
+  <div style="display:inline-block;margin-right:20px;padding:10px;border-radius:8px;background:#a3a4a330;box-shadow:0 4px 6px rgba(0, 0, 0, 0.1);">
+    <div style="padding-bottom:10px;border-bottom:1px solid #ddd;">
+      <h3 style="margin:0;">Response Output (Success)</h3>
+    </div>
+    <img src="https://site-verifier.gallerycdn.vsassets.io/extensions/site-verifier/239a924b-20fe-46d2-b9b1-f8fb92aae43b/0.0.5/1708973381790/images/Response_Output_Variable_Example_Part_3.png" alt="Image 9" style="max-width:100%;height:auto;">
+  </div>  
+</div>
+
+### Advanced Configuration (Optional)
+
+Customize advanced parameters as needed:
+
+- **HTTP Method (httpMethod):** Select the appropriate method (e.g., GET, POST).
+- **Use Authentication (useAuthentication):** Enable if authentication is required.
+- **Authentication Method (authenticationMethod):** Choose between Basic or Header Token.
+- **Request Payload (requestPayload):** Provide payload for methods supporting it.
+- **Content-Type (contentType):** Specify the Content-Type header.
+- **Retry Count (maxRetries) and Retry Delay (delayBetweenRetries):** Configure retry settings.
+- **Show Response Content (logResponse):** Enable logging of response content.
+- **Response Output Variable (responseOutput):** Define variable to store response content.
+- **Expected Response Payload (expectedPayload) and Response Filter Path (responseFilterPath):** Specify expected payload and response filter path.
+- **Response Filter Path (responseFilterPath):** Defines JSONPath expression for JSON responses to filter data, uses CSS-like selectors with cheerio.js for HTML/XML, and specifies a substring for plain text. It aids in data validation by matching with `expectedPayload`.
+
+### Execution and Results
+
+- Save your pipeline configuration and initiate a new release for testing.
+- Review logs to verify successful execution and expected site response.
+
+### Best Practices
+
+Follow these best practices when using the Site Verifier task:
+
+- **Secure Sensitive Information:** Utilize Azure DevOps secret variables for credentials.
+- **Optimize Retry Logic:** Set appropriate retry parameters based on endpoint behavior.
+- **Continuous Monitoring:** Regularly monitor endpoint health for timely issue detection and resolution.
+
+### Troubleshooting
+
+Here are some tips for troubleshooting common issues:
+
+- **Authentication Failures:** Verify authentication credentials and method.
+- **Unexpected Responses:** Investigate unexpected response codes or payloads.
+- **Retry Issues:** Adjust retry parameters and investigate endpoint stability.
+- **Header Configuration:** Ensure correct specification of HTTP headers.
+- **Variable Recognition:** Verify accessibility of environment variables within the pipeline context.
+
+#### Common Pitfalls to Avoid
+
+- **Content-Type Oversight:** Ensure alignment between Content-Type header and request payload format.
+- **Dynamic Response Consideration:** Account for dynamic elements within responses during payload expectation configuration.
+
+#### Acknowledgments
+
+<div style="display:flex;align-items:center;">
+  <p style="flex:1;">Special thanks to <a href="https://copilot.microsoft.com/" target="_blank">Microsoft Copilot</a> and <a href="https://designer.microsoft.com/" target="_blank">Microsoft Designer</a> for creating a distinctive and visually appealing <b>SiteVerifier icon</b>.</p>
+  <img src="https://site-verifier.gallerycdn.vsassets.io/extensions/site-verifier/239a924b-20fe-46d2-b9b1-f8fb92aae43b/0.0.5/1708973381790/images/icon.png" alt="Siteverifier Icon" style="width:100px;height:auto;flex:0;">
+</div>
