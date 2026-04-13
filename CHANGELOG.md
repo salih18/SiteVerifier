@@ -2,6 +2,14 @@
 
 All notable changes to the **Site Verifier** Azure DevOps extension will be documented in this file.
 
+## [0.0.29] - 2026-04-13
+
+### Security
+- Upgraded `axios` from `1.13.5` to `1.15.0` to fix critical SSRF (GHSA-3p68-rc4w-qgx5) and Header Injection (GHSA-fvcv-3m26-pcqx) vulnerabilities
+- Upgraded `lodash` from `4.17.21` to `4.18.1` to fix Code Injection and Prototype Pollution vulnerabilities
+- Upgraded `azure-pipelines-task-lib` from `4.17.0` to `5.2.8` to fix transitive `minimatch` ReDoS vulnerabilities
+- Resolved all 6 npm audit vulnerabilities (1 critical, 4 high, 1 moderate)
+
 ## [0.0.28] - 2026-02-25
 
 ### Changed
