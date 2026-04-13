@@ -2,6 +2,13 @@
 
 All notable changes to the **Site Verifier** Azure DevOps extension will be documented in this file.
 
+## [0.0.30] - 2026-04-13
+
+### Changed
+- Restored comprehensive examples and documentation in marketplace overview
+- Added 19 YAML pipeline examples covering all features: GET/POST/PUT/DELETE/PATCH, authentication, response filtering (JSON, HTML, XML, plain text), response output, retry configuration, and full pipeline integration
+- Added configuration reference table, best practices, and troubleshooting guide
+
 ## [0.0.29] - 2026-04-13
 
 ### Security
